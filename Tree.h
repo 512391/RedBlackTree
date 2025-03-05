@@ -28,6 +28,8 @@ class Tree
   void trimPrintArray(int width, int height, BinaryNode*** nodes, int* bottomTopIndicies);
   //fixing violations after adding
   void addFix(BinaryNode* node);
+  //recolors after insertion
+  void addRecolor(BinaryNode* node);
  public:
   //root
   BinaryNode* root;

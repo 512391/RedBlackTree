@@ -48,40 +48,56 @@ void Tree::add(int i, BinaryNode* node)
           node->setRight(newNode);
         }
     }
-  cout << endl;
-  cout << i << endl;
+  
+  print();
+  
   if(node->getColor() == 'R')
     {
       cout << "fixing" << endl;
       addFix(newNode);
+      addColor(newNode);
     }
+  root->setColor('B');
 }
 
 void Tree::addFix(BinaryNode* node)
 {
+  print();
   BinaryNode* uncle = nullptr;
+  BinaryNode* nextFix = node->getParent();
 
+  cout << "Node fixing: " << node->getData() << endl;
+  
+  if(nextFix == nullptr || nextFix->getColor() != 'R')
+    {
+      return;
+    }
+  
   if(node->getParent()->getParent()->getLeft() == node)
         {
           uncle = node->getParent()->getParent()->getRight();
         }
-      else
+  else if(node->getParent()->getParent()->getRight() != nullptr)
         {
           uncle = node->getParent()->getParent()->getLeft();
         }
-
+  cout << "got uncle: " << uncle << endl;
   if(uncle == nullptr || uncle->getColor() == 'B')
         {
           if(node->getParent()->getRight() == node)
             {
-              leftRotate(node);
+	      cout << "rotating left" << endl;
+              leftRotate(node->getParent());
+	      addFix(nextFix);
             }
           else
             {
-              rightRotate(node->getParent());
+	      cout << "rotating right" << endl;
+              rightRotate(node->getParent()->getParent());
+	      addFix(nextFix);
             }
         }
-      else
+  else if(uncle != nullptr)
         {
           node->getParent()->setColor('B');
           uncle->setColor('B');
@@ -89,9 +105,51 @@ void Tree::addFix(BinaryNode* node)
 
           addFix(node->getParent()->getParent());          
         }
-
+  
 }
 
+void Tree::addRecolor(BinaryNode* node)
+{
+   BinaryNode* uncle = nullptr;
+
+   if(node == nullptr || node->getParent() == nullptr)
+    {
+      return;
+    }
+   
+   cout << "color fixing" << endl
+   
+  if(node->getParent()->getParent()->getLeft() == node)
+        {
+          uncle = node->getParent()->getParent()->getRight();
+        }
+  else if(node->getParent()->getParent()->getRight() != nullptr)
+        {
+          uncle = node->getParent()->getParent()->getLeft();
+        }
+
+   if(uncle == nullptr || uncle->getColor() == 'B')
+     {
+       if((node->getParent()->getLeft() == node && node->getParent()->getParent()->getRight() == node->getParent()) ||
+          (node->getParent()->getRight() == node && node->getParent()->getParent()->getLeft() == node->getParent()))
+         {
+	   
+         }
+       else
+         {
+	   
+         }
+     }
+   
+   if(node->getParent()->getColor() == 'R' && uncle->getColor() == 'R')
+     {
+       node->getParent()->setColor('B');
+       uncle->setColor('B');
+       node->getParent()->getParent()->setColor('R');
+       addRecolor(node->getParent()->getParent());
+       return;
+     }
+}
 //searches recursively
 bool Tree::search(BinaryNode* node, int i)
 {
@@ -449,11 +507,19 @@ void Tree::make2dTree(BinaryNode*** finalNodes, BinaryNode** nodes, int arrSize,
 void Tree::leftRotate(BinaryNode* axis)
 {
   BinaryNode* newTop = axis->getRight();
+  cout << "new top" << endl;
   BinaryNode* axisParent = axis->getParent();
+  cout << "axis parent" << endl;
   BinaryNode* leftSubtree = newTop->getLeft();
 
+  cout << "has all vars for rotate" << endl;
+  cout << newTop << ", " << axisParent << ", " << leftSubtree << endl;
+  
   axis->setRight(leftSubtree);
+  cout << "set axis right to left subtree" << endl;
   newTop->setLeft(axis);
+
+  cout << "passed first rotates" << endl;
   
   if(axisParent != nullptr)
     {
@@ -470,6 +536,7 @@ void Tree::leftRotate(BinaryNode* axis)
     {
       root = newTop;
       newTop->setParent(nullptr);
+      root->setColor('B');
     }
 }
 
@@ -497,6 +564,7 @@ void Tree::rightRotate(BinaryNode* axis)
     {
       root = newTop;
       newTop->setParent(nullptr);
+      newTop->setColor('B');
     }
 }
 

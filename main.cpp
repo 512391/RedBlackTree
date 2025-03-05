@@ -96,7 +96,6 @@ int main()
   cout << endl << endl;
 
  tree->print();
- tree->rightRotate(tree->root);
  cout << endl << endl;
  tree->print();
   /*  int input = 0;

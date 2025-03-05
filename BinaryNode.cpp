@@ -32,13 +32,19 @@ void BinaryNode::setLeft(BinaryNode* node)
 {
   //sets the left
   BinaryNode::left = node;
-  BinaryNode::left->setParent(this);
+  if(node != nullptr)
+    {
+      BinaryNode::left->setParent(this);
+    }
 }
 void BinaryNode::setRight(BinaryNode* node)
 {
   //sets the right
   BinaryNode::right = node;
-  BinaryNode::right->setParent(this);
+  if(node != nullptr)
+  {
+    BinaryNode::right->setParent(this);
+  }
 }
 BinaryNode* BinaryNode::getRight()
 {
