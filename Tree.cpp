@@ -48,16 +48,15 @@ void Tree::add(int i, BinaryNode* node)
           node->setRight(newNode);
         }
     }
-  
-  print();
-  
+ 
   if(node->getColor() == 'R')
     {
       cout << "fixing" << endl;
       addFix(newNode);
-      addColor(newNode);
     }
   root->setColor('B');
+  print();
+  cout << endl << endl;
 }
 
 void Tree::addFix(BinaryNode* node)
@@ -68,88 +67,94 @@ void Tree::addFix(BinaryNode* node)
 
   cout << "Node fixing: " << node->getData() << endl;
   
-  if(nextFix == nullptr || nextFix->getColor() != 'R')
+  if(nextFix == nullptr || nextFix->getParent() == nullptr || nextFix->getColor() != 'R')
     {
       return;
     }
+
+  bool uncleIsLeft = false;
   
-  if(node->getParent()->getParent()->getLeft() == node)
+  if(node->getParent()->getParent()->getLeft() == node->getParent())
         {
           uncle = node->getParent()->getParent()->getRight();
         }
   else if(node->getParent()->getParent()->getRight() != nullptr)
         {
           uncle = node->getParent()->getParent()->getLeft();
+	  uncleIsLeft=true;
         }
-  cout << "got uncle: " << uncle << endl;
+  char uncColor = 'A';
+
   if(uncle == nullptr || uncle->getColor() == 'B')
+    {
+      uncColor = 'B';
+    }
+  else
+    {
+      uncColor = 'R';
+    }
+  
+  cout << "got uncle: " << uncle << endl;
+  if(uncleIsLeft)
         {
-          if(node->getParent()->getRight() == node)
+	  if(uncColor == 'R')
+	    {
+	      if(uncle != nullptr)
+		{
+		 uncle->setColor('B');
+		}
+		 node->getParent()->setColor('B');
+                 node->getParent()->getParent()->setColor('R');
+		 node = node->getParent();
+	    }
+	  else
+	    {
+	      if(node == node->getParent()->getLeft())
+		{
+		  cout << "rotating left" << endl;
+		  node=node->getParent();
+		  nextFix = node->getParent();
+		  rightRotate(node->getParent());
+		}
+	      node->getParent()->setColor('B');
+             node->getParent()->getParent()->setColor('R');
+	     leftRotate(node->getParent()->getParent());
+	    }
+
+	  
+        }
+       else
+        {
+          if(uncColor == 'R')
             {
-	      cout << "rotating left" << endl;
-              leftRotate(node->getParent());
-	      addFix(nextFix);
+	       if(uncle != nullptr)
+                {
+                 uncle->setColor('B');
+		}
+                 node->getParent()->setColor('B');
+                 node->getParent()->getParent()->setColor('R');
+                 nextFix = node->getParent()->getParent();
             }
           else
             {
-	      cout << "rotating right" << endl;
-              rightRotate(node->getParent()->getParent());
-	      addFix(nextFix);
+              if(node == node->getParent()->getLeft())
+                {
+                  node=node->getParent();
+                  nextFix = node->getParent();
+                  leftRotate(node->getParent());
+                }
+              node->getParent()->setColor('B');
+             node->getParent()->getParent()->setColor('R');
+	     print();
+             rightRotate(node->getParent()->getParent());
+	     print();
             }
         }
-  else if(uncle != nullptr)
-        {
-          node->getParent()->setColor('B');
-          uncle->setColor('B');
-          node->getParent()->getParent()->setColor('R');
-
-          addFix(node->getParent()->getParent());          
-        }
+  cout << "at next fix" << endl;
+  addFix(nextFix);
   
 }
 
-void Tree::addRecolor(BinaryNode* node)
-{
-   BinaryNode* uncle = nullptr;
-
-   if(node == nullptr || node->getParent() == nullptr)
-    {
-      return;
-    }
-   
-   cout << "color fixing" << endl
-   
-  if(node->getParent()->getParent()->getLeft() == node)
-        {
-          uncle = node->getParent()->getParent()->getRight();
-        }
-  else if(node->getParent()->getParent()->getRight() != nullptr)
-        {
-          uncle = node->getParent()->getParent()->getLeft();
-        }
-
-   if(uncle == nullptr || uncle->getColor() == 'B')
-     {
-       if((node->getParent()->getLeft() == node && node->getParent()->getParent()->getRight() == node->getParent()) ||
-          (node->getParent()->getRight() == node && node->getParent()->getParent()->getLeft() == node->getParent()))
-         {
-	   
-         }
-       else
-         {
-	   
-         }
-     }
-   
-   if(node->getParent()->getColor() == 'R' && uncle->getColor() == 'R')
-     {
-       node->getParent()->setColor('B');
-       uncle->setColor('B');
-       node->getParent()->getParent()->setColor('R');
-       addRecolor(node->getParent()->getParent());
-       return;
-     }
-}
 //searches recursively
 bool Tree::search(BinaryNode* node, int i)
 {
@@ -375,11 +380,11 @@ int Tree::findHeight(BinaryNode* node)
     {
       return -1;
     }
-
+  
   //gets it recursively
   int left = findHeight(node->getLeft());
   int right = findHeight(node->getRight());
-
+ 
   return max(left, right)+1;
 }
 
@@ -499,73 +504,27 @@ void Tree::make2dTree(BinaryNode*** finalNodes, BinaryNode** nodes, int arrSize,
     }
 
   delete[] nodes;
+  cout << "Level: " << currHeight << endl;
 
+  for(int i  = 0; i < arrSize*2; i++)
+    {
+      if(newNodeArray[i] != nullptr)
+	{
+	  cout << newNodeArray[i]->getData() << endl;
+	}
+    }
   //goes recursively
   make2dTree(finalNodes, newNodeArray, arrSize*2, height, currHeight+1, lineSize, sideIndent);
 }
 
 void Tree::leftRotate(BinaryNode* axis)
 {
-  BinaryNode* newTop = axis->getRight();
-  cout << "new top" << endl;
-  BinaryNode* axisParent = axis->getParent();
-  cout << "axis parent" << endl;
-  BinaryNode* leftSubtree = newTop->getLeft();
-
-  cout << "has all vars for rotate" << endl;
-  cout << newTop << ", " << axisParent << ", " << leftSubtree << endl;
   
-  axis->setRight(leftSubtree);
-  cout << "set axis right to left subtree" << endl;
-  newTop->setLeft(axis);
-
-  cout << "passed first rotates" << endl;
-  
-  if(axisParent != nullptr)
-    {
-      if(axisParent->getLeft() == axis)
-	{
-	  axisParent->setLeft(newTop);
-	}
-      else
-	{
-	  axisParent->setRight(newTop);
-	}
-    }
-  else
-    {
-      root = newTop;
-      newTop->setParent(nullptr);
-      root->setColor('B');
-    }
 }
 
 void Tree::rightRotate(BinaryNode* axis)
 {
-  BinaryNode* newTop = axis->getLeft();
-  BinaryNode* axisParent = axis->getParent();
-  BinaryNode* rightSubtree = newTop->getRight();
-
-  axis->setLeft(rightSubtree);
-  newTop->setRight(axis);
-
-  if(axisParent != nullptr)
-    {
-      if(axisParent->getLeft() == axis)
-        {
-          axisParent->setLeft(newTop);
-        }
-      else
-        {
-          axisParent->setRight(newTop);
-        }
-    }
-  else
-    {
-      root = newTop;
-      newTop->setParent(nullptr);
-      newTop->setColor('B');
-    }
+  
 }
 
 
@@ -574,12 +533,12 @@ void Tree::print()
 {
   BinaryNode** rootArr = new BinaryNode*[1];
   rootArr[0] = Tree::root;
-
+  cout << "finding height" << endl;
   //gets the sizes of the width and height
   int height = findHeight(Tree::root)+2;
   int lineSize = pow(2,height)-1;
   int topDownSize = pow(2,height);
-
+  cout << "found sized" << endl;
   //makes array of nodes for 2d array
   BinaryNode*** finalNodes = new BinaryNode**[topDownSize];
   for(int i = 0; i < topDownSize; i++)
@@ -590,7 +549,7 @@ void Tree::print()
 	  finalNodes[i][j] = nullptr;
 	}
     }
-  
+  cout << "making tree" << endl;
   //makes array
   make2dTree(finalNodes, rootArr, 1, height, 1, lineSize, floor(lineSize/2));
 
@@ -598,7 +557,7 @@ void Tree::print()
 
   //trims the fat off the sides of the array
   trimPrintArray(topDownSize, height, finalNodes, indicies);
-
+  cout << "made tree" << endl;
   //prints and does diffrent depending on if condensed or not
   for(int i = indicies[0]; i <= indicies[1]; i++)
     {

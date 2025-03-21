@@ -91,6 +91,7 @@ int main()
      tree->add(currentNum, tree->root);
       index++;
       currentNum = numbers[index];
+     
     }
 
   cout << endl << endl;
