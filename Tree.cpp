@@ -137,7 +137,7 @@ void Tree::addFix(BinaryNode* node)
             }
           else
             {
-              if(node == node->getParent()->getLeft())
+              if(node == node->getParent()->getRight())
                 {
                   node=node->getParent();
                   nextFix = node->getParent();
@@ -517,14 +517,53 @@ void Tree::make2dTree(BinaryNode*** finalNodes, BinaryNode** nodes, int arrSize,
   make2dTree(finalNodes, newNodeArray, arrSize*2, height, currHeight+1, lineSize, sideIndent);
 }
 
-void Tree::leftRotate(BinaryNode* axis)
+//my rotattions are straight off https://www.geeksforgeeks.org/insertion-in-red-black-tree/so just citing that
+void Tree::leftRotate(BinaryNode* node)
 {
+  BinaryNode* p = node->getParent();
+  bool wasLeft = true;
+  if(p->getRight() == node)
+    {
+      wasLeft = false;
+    }
   
+  BinaryNode* x = node->getRight();
+  BinaryNode* y = x->getLeft();
+  x->setLeft(node);
+  node->setRight(y);
+  
+  if(wasLeft)
+    {
+      p->setLeft(x);
+    }
+  else
+    {
+      p->setRight(x);
+    }
 }
 
-void Tree::rightRotate(BinaryNode* axis)
+void Tree::rightRotate(BinaryNode* node)
 {
-  
+   BinaryNode* p = node->getParent();
+  bool wasLeft = true;
+  if(p->getRight() == node)
+    {
+      wasLeft = false;
+    }
+
+  BinaryNode* x = node->getLeft();
+  BinaryNode* y = x->getRight();
+  x->setRight(node);
+  node->setLeft(y);
+
+  if(wasLeft)
+    {
+      p->setLeft(x);
+    }
+  else
+    {
+      p->setRight(x);
+    }
 }
 
 
