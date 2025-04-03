@@ -59,6 +59,7 @@ void Tree::add(int i, BinaryNode* node)
   cout << endl << endl;
 }
 
+//this jsut checks the nodes against all o the rules and fixes them if they are wrong
 void Tree::addFix(BinaryNode* node)
 {
   if(node == nullptr)
@@ -71,7 +72,8 @@ void Tree::addFix(BinaryNode* node)
   cout << "about to get parent" << endl;
   
   cout << "Node fixing: " << node->getData() << endl;
-  
+
+  //only does something if parent is red
   if(node->getParent() == nullptr || node->getParent()->getColor() == 'B')
     {
       return;
