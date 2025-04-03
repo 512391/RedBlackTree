@@ -61,13 +61,18 @@ void Tree::add(int i, BinaryNode* node)
 
 void Tree::addFix(BinaryNode* node)
 {
+  if(node == nullptr)
+    {
+      return;
+    }
+  
   print();
   BinaryNode* uncle = nullptr;
-  BinaryNode* nextFix = node->getParent();
-
+  cout << "about to get parent" << endl;
+  
   cout << "Node fixing: " << node->getData() << endl;
   
-  if(nextFix == nullptr || nextFix->getParent() == nullptr || nextFix->getColor() != 'R')
+  if(node->getParent() == nullptr || node->getParent()->getColor() == 'B')
     {
       return;
     }
@@ -78,9 +83,12 @@ void Tree::addFix(BinaryNode* node)
         {
           uncle = node->getParent()->getParent()->getRight();
         }
-  else if(node->getParent()->getParent()->getRight() != nullptr)
+  else
         {
-          uncle = node->getParent()->getParent()->getLeft();
+	  if(node->getParent()->getParent()->getRight() != nullptr)
+	    {
+	      uncle = node->getParent()->getParent()->getLeft();
+	    }
 	  uncleIsLeft=true;
         }
   char uncColor = 'A';
@@ -105,7 +113,8 @@ void Tree::addFix(BinaryNode* node)
 		}
 		 node->getParent()->setColor('B');
                  node->getParent()->getParent()->setColor('R');
-		 node = node->getParent();
+		 node = node->getParent()->getParent();
+		 
 	    }
 	  else
 	    {
@@ -113,8 +122,8 @@ void Tree::addFix(BinaryNode* node)
 		{
 		  cout << "rotating left" << endl;
 		  node=node->getParent();
-		  nextFix = node->getParent();
-		  rightRotate(node->getParent());
+		  
+		  rightRotate(node);
 		}
 	      node->getParent()->setColor('B');
              node->getParent()->getParent()->setColor('R');
@@ -133,25 +142,28 @@ void Tree::addFix(BinaryNode* node)
 		}
                  node->getParent()->setColor('B');
                  node->getParent()->getParent()->setColor('R');
-                 nextFix = node->getParent()->getParent();
+		 node = node->getParent()->getParent();
             }
           else
             {
+	      cout << "In the spot I thought" << endl;
               if(node == node->getParent()->getRight())
                 {
                   node=node->getParent();
-                  nextFix = node->getParent();
-                  leftRotate(node->getParent());
+                  
+		  cout << "above rotate" << endl;
+                  leftRotate(node);
                 }
+	      cout << "below rotate" << endl;
               node->getParent()->setColor('B');
              node->getParent()->getParent()->setColor('R');
-	     print();
+	     
              rightRotate(node->getParent()->getParent());
-	     print();
+	     
             }
         }
   cout << "at next fix" << endl;
-  addFix(nextFix);
+  addFix(node);
   
 }
 
@@ -290,7 +302,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	  //get the successor and parent
 	  BinaryNode* success = getSuccesor(node);
 	  BinaryNode* parent  = getParent(Tree::root, success->getData());
-	  cout << "Parent: " << parent->getData() << endl;
+	  cout << success->getData() << "Parent: " << parent->getData() << endl;
 	  //set success parets children
 	  if(parent != node)
             {
@@ -320,7 +332,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	    }
 	  else
 	    {
-	      success->setLeft(nullptr);
+	      success->setRight(nullptr);
 	    }
 	}//checks if only has right child
       else if(node->getRight() != nullptr)
@@ -379,6 +391,10 @@ int Tree::findHeight(BinaryNode* node)
   if(node == nullptr)
     {
       return -1;
+    }
+  else
+    {
+      //cout << "Node: " << node->getData() << endl;
     }
   
   //gets it recursively
@@ -522,7 +538,7 @@ void Tree::leftRotate(BinaryNode* node)
 {
   BinaryNode* p = node->getParent();
   bool wasLeft = true;
-  if(p->getRight() == node)
+  if(p != nullptr && p->getRight() == node)
     {
       wasLeft = false;
     }
@@ -532,13 +548,23 @@ void Tree::leftRotate(BinaryNode* node)
   x->setLeft(node);
   node->setRight(y);
   
-  if(wasLeft)
+  if(p != nullptr)
     {
-      p->setLeft(x);
+      if(wasLeft)
+        {
+          p->setLeft(x);
+        }
+      else
+        {
+          p->setRight(x);
+        }
     }
-  else
+
+  if(node == root)
     {
-      p->setRight(x);
+      root = x;
+      cout << "Root parent: " <<  x->getParent()->getData();
+      x->setParent(nullptr);
     }
 }
 
@@ -546,7 +572,7 @@ void Tree::rightRotate(BinaryNode* node)
 {
    BinaryNode* p = node->getParent();
   bool wasLeft = true;
-  if(p->getRight() == node)
+  if(p != nullptr && p->getRight() == node)
     {
       wasLeft = false;
     }
@@ -556,14 +582,23 @@ void Tree::rightRotate(BinaryNode* node)
   x->setRight(node);
   node->setLeft(y);
 
-  if(wasLeft)
+  if(p != nullptr)
     {
-      p->setLeft(x);
+      if(wasLeft)
+	{
+	  p->setLeft(x);
+	}
+      else
+	{
+	  p->setRight(x);
+	}
     }
-  else
+  if(node == root)
     {
-      p->setRight(x);
+      root = x;
+      x->setParent(nullptr);
     }
+
 }
 
 
@@ -575,9 +610,10 @@ void Tree::print()
   cout << "finding height" << endl;
   //gets the sizes of the width and height
   int height = findHeight(Tree::root)+2;
+  cout << "found sized" << endl;
   int lineSize = pow(2,height)-1;
   int topDownSize = pow(2,height);
-  cout << "found sized" << endl;
+ 
   //makes array of nodes for 2d array
   BinaryNode*** finalNodes = new BinaryNode**[topDownSize];
   for(int i = 0; i < topDownSize; i++)
@@ -598,7 +634,7 @@ void Tree::print()
   trimPrintArray(topDownSize, height, finalNodes, indicies);
   cout << "made tree" << endl;
   //prints and does diffrent depending on if condensed or not
-  for(int i = indicies[0]; i <= indicies[1]; i++)
+  for(int i = topDownSize-1; i >=0; i--)
     {
       bool isEmpty = true;
       for(int j = 0; j < height; j++)
@@ -629,6 +665,8 @@ void Tree::print()
     }
    
   delete[] finalNodes;
+
+  cout << "out of print" << endl;
 }
 
 //trims the array to print
