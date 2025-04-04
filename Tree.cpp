@@ -48,18 +48,19 @@ void Tree::add(int i, BinaryNode* node)
           node->setRight(newNode);
         }
     }
- 
+ //since node is the parent of the new node if it is red it needs to be fixed
   if(node->getColor() == 'R')
     {
       cout << "fixing" << endl;
       addFix(newNode);
     }
+//root should always be black
   root->setColor('B');
   print();
   cout << endl << endl;
 }
 
-//this jsut checks the nodes against all o the rules and fixes them if they are wrong
+//this just checks the nodes against all of the rules and fixes them if they are wrong https://www.geeksforgeeks.org/insertion-in-red-black-tree/ is where I learned most of these algorithims so just citing that
 void Tree::addFix(BinaryNode* node)
 {
   if(node == nullptr)
@@ -80,7 +81,8 @@ void Tree::addFix(BinaryNode* node)
     }
 
   bool uncleIsLeft = false;
-  
+
+	//this long if statement gets the uncle and says in the bool above where it is
   if(node->getParent()->getParent()->getLeft() == node->getParent())
         {
           uncle = node->getParent()->getParent()->getRight();
@@ -94,7 +96,7 @@ void Tree::addFix(BinaryNode* node)
 	  uncleIsLeft=true;
         }
   char uncColor = 'A';
-
+//this gets the color of the uncle
   if(uncle == nullptr || uncle->getColor() == 'B')
     {
       uncColor = 'B';
@@ -103,10 +105,12 @@ void Tree::addFix(BinaryNode* node)
     {
       uncColor = 'R';
     }
-  
+
+	//if the uncle is on the left and parent on the right
   cout << "got uncle: " << uncle << endl;
   if(uncleIsLeft)
         {
+	//if the uncle is red it and the parent needs to be black and the grandparent needs to be red so that no red nodes are attached to each other
 	  if(uncColor == 'R')
 	    {
 	      if(uncle != nullptr)
@@ -115,26 +119,31 @@ void Tree::addFix(BinaryNode* node)
 		}
 		 node->getParent()->setColor('B');
                  node->getParent()->getParent()->setColor('R');
+		    //recursively go check the grandparent now that it is red
 		 node = node->getParent()->getParent();
 		 
 	    }
-	  else
+	  else // if uncle is black
 	    {
+		//if it is a left node
 	      if(node == node->getParent()->getLeft())
 		{
 		  cout << "rotating left" << endl;
 		  node=node->getParent();
-		  
+		  //needs to rotate right to reposition the node in question
 		  rightRotate(node);
 		}
+		    //recolors the node that is now the parent to black
 	      node->getParent()->setColor('B');
+		    //sets the grandparent to red
              node->getParent()->getParent()->setColor('R');
+		    //rotates the node
 	     leftRotate(node->getParent()->getParent());
 	    }
 
 	  
         }
-       else
+       else //uncles is right and it is basically just the inverse of left, left rotates are now right and vice versa
         {
           if(uncColor == 'R')
             {
@@ -535,10 +544,11 @@ void Tree::make2dTree(BinaryNode*** finalNodes, BinaryNode** nodes, int arrSize,
   make2dTree(finalNodes, newNodeArray, arrSize*2, height, currHeight+1, lineSize, sideIndent);
 }
 
-//my rotattions are straight off https://www.geeksforgeeks.org/insertion-in-red-black-tree/so just citing that
+//my rotattions are straight off https://www.geeksforgeeks.org/insertion-in-red-black-tree/ so just citing that
 void Tree::leftRotate(BinaryNode* node)
 {
   BinaryNode* p = node->getParent();
+//gets the position of the node that will be rotating so it can reassigned to the parent
   bool wasLeft = true;
   if(p != nullptr && p->getRight() == node)
     {
@@ -547,9 +557,11 @@ void Tree::leftRotate(BinaryNode* node)
   
   BinaryNode* x = node->getRight();
   BinaryNode* y = x->getLeft();
+	//does the rotation stuff
   x->setLeft(node);
   node->setRight(y);
-  
+
+	//if there was a parent it reassigns it to the node
   if(p != nullptr)
     {
       if(wasLeft)
@@ -562,6 +574,7 @@ void Tree::leftRotate(BinaryNode* node)
         }
     }
 
+	//if it went through the root just assign it to the root and make it have no parent
   if(node == root)
     {
       root = x;
@@ -570,8 +583,10 @@ void Tree::leftRotate(BinaryNode* node)
     }
 }
 
+//rotating right
 void Tree::rightRotate(BinaryNode* node)
 {
+	//gets parent it the position of the node in relation to reassign a new node later
    BinaryNode* p = node->getParent();
   bool wasLeft = true;
   if(p != nullptr && p->getRight() == node)
@@ -581,9 +596,11 @@ void Tree::rightRotate(BinaryNode* node)
 
   BinaryNode* x = node->getLeft();
   BinaryNode* y = x->getRight();
+	//does the rotation
   x->setRight(node);
   node->setLeft(y);
 
+	//checks if there is a parent and assigns the new head of the rotated part to where the old one was
   if(p != nullptr)
     {
       if(wasLeft)
@@ -595,6 +612,7 @@ void Tree::rightRotate(BinaryNode* node)
 	  p->setRight(x);
 	}
     }
+	//if it is the root just make it the root and make sure it has no parent
   if(node == root)
     {
       root = x;
