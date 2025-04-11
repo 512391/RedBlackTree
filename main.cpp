@@ -15,7 +15,7 @@ int* getFileNums()
         cout << "What file name \n";
 
 	//gets a file name
-	//cin.ignore();
+	cin.ignore();
         cin.getline(input, 20);
 
 	cout << input;
@@ -78,28 +78,7 @@ int* getFileNums()
 
 int main()
 {
-  Tree* tree = new Tree();
-   int* numbers = getFileNums();
-
-  int currentNum = numbers[0];
-  int index = 0;
-
-  cout << currentNum;
-  //adds all the numbers
-  while(currentNum != -1)
-   {
-     tree->add(currentNum, tree->root);
-      index++;
-      currentNum = numbers[index];
-     
-    }
-
-  cout << endl << endl;
-
- tree->print();
- cout << endl << endl;
- tree->print();
-  /*  int input = 0;
+  int input = 0;
   cout << "1 for input from console or 2 from file\n";
   cin >> input;
 
@@ -166,5 +145,5 @@ int main()
 	}
       cout << "-1 to quit, -2 to print, -3 to delete, -4 for find, -5 for input number \n";
       cin >> input;
-      }*/
+      }
 }
