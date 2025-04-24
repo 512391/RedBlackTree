@@ -265,10 +265,17 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
     }
 
   cout << "Current number: " << node->getData() << endl;
+
+  bool isLeft = false;
   
   if(node->getData() == i)
     {
       cout << "removing something: " << i << endl;
+
+      if(nodeParent->getLeft() == node)
+	{
+	  isLeft = true;
+	}
       
       BinaryNode* toReturn  = new BinaryNode(node->getData());
       //checks if root
@@ -367,8 +374,28 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
               nodeParent->setLeft(nullptr);
             }
 	}
-      
+
       delete node;
+      
+      if(node->getColor() == 'B')
+	{
+	  BinaryNode* fixNode = success;
+	  
+	  if(success == nullptr && root != nullptr)
+	    {
+	      if(isLeft)
+		{
+		  fixNode = nodeParent->getLeft();
+		}
+	      else
+		{
+		  fixNode = nodeParent->getRight();
+		}
+	    }
+	  
+	  removeFix(nodeParent, fixNode);
+	}
+      
       return toReturn;
     }
 
@@ -383,16 +410,31 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
     }
 }
 
+void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node)
+{
+  if(node == root)
+    {
+      if(node->getLeft() == nullptr)
+	{
+	  rotateLeft(node);
+	}
+      else
+	{
+	  rotateRight(node);
+	}
+    }
+  while(node != root && node->getColor() == 'B')
+    {
+      
+    }
+}
+
 //gets the height
 int Tree::findHeight(BinaryNode* node)
 {
   if(node == nullptr)
     {
       return -1;
-    }
-  else
-    {
-      //cout << "Node: " << node->getData() << endl;
     }
   
   //gets it recursively

@@ -28,6 +28,8 @@ class Tree
   void trimPrintArray(int width, int height, BinaryNode*** nodes, int* bottomTopIndicies);
   //fixing violations after adding
   void addFix(BinaryNode* node);
+  //fixes violations when removing
+  void removeFix(BinaryNode* nodeParent, BinaryNode* node);
  public:
   //root
   BinaryNode* root;
