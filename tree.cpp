@@ -412,6 +412,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
     }
 }
 
+//fixes any rule breaks on deletion big credit to the https://www.programiz.com/dsa/deletion-from-a-red-black-tree tutorial really helped me understand it
 void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 { 
   if(node == root)
@@ -427,21 +428,80 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
     }
   while(node != root && node->getColor() == 'B')
     {
-      BinaryNode* w = nullptr;
+      BinaryNode* sib = nullptr;
       //case 1
       if(isLeft)
 	{
-	  w = node->getParent()->getRight();
-	  if(w->getColor() == 'R')
+	  sib = node->getParent()->getRight();
+	  if(sib->getColor() == 'R')
 	    {
-	      w->setColor('R');
-	      w->getParent()->setColor('R');
+	      sib->setColor('R');
+	      sib->getParent()->setColor('R');
 	      leftRotate(node->parent());
-	      w = node->getParent()->getRight();
+	      sib = node->getParent()->getRight();
 	    }
+	  //case 2
+        if(sib->getLeft()->getColor() == 'B' && sib->getRight()->getColor() == 'B')
+	  {
+	    sib->setColor('R');
+	    node = node->getParent();
+	  }
+        else
+	  {
+	    //case 3
+	    if(sib->getRight()->getColor() == 'B')
+	      {
+	        sib->getLeft()->setColor('B');
+	        sib->setColor('R');
+	        rightRotate(sib);
+	        sib = node->getParent()->getRight();
+	      }
+	    //case 4
+	    sib->setColor(node->getParent()->getColor());
+	    node->getParent()->getParent()->setColor('B');
+	    sib->getRight()->setColor('B');
+	    leftRotate(node->getParent());
+	    node = root;
+	  }
 	}
-      
+      else
+	{
+	  sib = node->getParent()->getLeft();
+          if(sib->getColor() == 'R')
+            {
+              sib->setColor('R');
+              sib->getParent()->setColor('R');
+              rightRotate(node->parent());
+              sib = node->getParent()->getLeft();
+            }
+          //case 2
+        if(sib->getLeft()->getColor() == 'B' && sib->getRight()->getColor() == 'B')
+          {
+            sib->setColor('R');
+            node = node->getParent();
+          }
+        else
+          {
+            //case 3
+            if(sib->getLeft()->getColor() == 'B')
+              {
+                sib->getRight()->setColor('B');
+                sib->setColor('R');
+                leftRotate(sib);
+                sib = node->getParent()->getLeft();
+              }
+            //case 4
+            sib->setColor(node->getParent()->getColor());
+            node->getParent()->getParent()->setColor('B');
+            sib->getLeft()->setColor('B');
+            rightRotate(node->getParent());
+            node = root;
+          }
+
+	}
+      node->setColor('B');
     }
+  
 }
 
 //gets the height
