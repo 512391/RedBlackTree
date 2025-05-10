@@ -267,7 +267,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
   cout << "Current number: " << node->getData() << endl;
 
   bool isLeft = false;
-  
+  BinaryNode* success = nullptr;
   if(node->getData() == i)
     {
       cout << "removing something: " << i << endl;
@@ -305,7 +305,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
       else if(node->getLeft() != nullptr && node->getRight() != nullptr)
 	{
 	  //get the successor and parent
-	  BinaryNode* success = getSuccesor(node);
+	  success = getSuccesor(node);
 	  BinaryNode* parent  = getParent(Tree::root, success->getData());
 	  cout << success->getData() << "Parent: " << parent->getData() << endl;
 	  //set success parets children
@@ -375,9 +375,11 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
             }
 	}
 
+        char origionalColor = node->getColor();
+ 
       delete node;
       
-      if(node->getColor() == 'B')
+      if(origionalColor == 'B')
 	{
 	  BinaryNode* fixNode = success;
 	  
@@ -393,7 +395,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 		}
 	    }
 	  
-	  removeFix(nodeParent, fixNode);
+	  removeFix(nodeParent, fixNode, isLeft);
 	}
       
       return toReturn;
@@ -410,21 +412,34 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
     }
 }
 
-void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node)
-{
+void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
+{ 
   if(node == root)
     {
       if(node->getLeft() == nullptr)
 	{
-	  rotateLeft(node);
+	  leftRotate(node);
 	}
       else
 	{
-	  rotateRight(node);
+	  rightRotate(node);
 	}
     }
   while(node != root && node->getColor() == 'B')
     {
+      BinaryNode* w = nullptr;
+      //case 1
+      if(isLeft)
+	{
+	  w = node->getParent()->getRight();
+	  if(w->getColor() == 'R')
+	    {
+	      w->setColor('R');
+	      w->getParent()->setColor('R');
+	      leftRotate(node->parent());
+	      w = node->getParent()->getRight();
+	    }
+	}
       
     }
 }
