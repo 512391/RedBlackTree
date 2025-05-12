@@ -29,7 +29,7 @@ class Tree
   //fixing violations after adding
   void addFix(BinaryNode* node);
   //fixes violations when removing
-  void removeFix(BinaryNode* nodeParent, BinaryNode* node);
+  void removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft);
  public:
   //root
   BinaryNode* root;

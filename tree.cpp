@@ -376,13 +376,18 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	}
 
         char origionalColor = node->getColor();
- 
+	BinaryNode* fixNode;
+	if(node->getLeft() == nullptr)
+	  {
+	    fixNode = node->getRight();
+	  }
+	//started changing delete
+	
       delete node;
       
       if(origionalColor == 'B')
 	{
-	  BinaryNode* fixNode = success;
-	  
+	  cout << "fixing" << endl;
 	  if(success == nullptr && root != nullptr)
 	    {
 	      if(isLeft)
@@ -394,7 +399,9 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 		  fixNode = nodeParent->getRight();
 		}
 	    }
-	  
+	  fixNode->setColor(origionalColor);
+	  cout << "IsLeft: " << isLeft << endl;
+	  cout << "FixNode: " << fixNode->getData() << endl;
 	  removeFix(nodeParent, fixNode, isLeft);
 	}
       
@@ -426,22 +433,34 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 	  rightRotate(node);
 	}
     }
-  while(node != root && node->getColor() == 'B')
+  while(node != root && (node == nullptr || node->getColor() == 'B'))
     {
+      cout << "Current node: " << node->getData() << endl;
       BinaryNode* sib = nullptr;
       //case 1
+
+      if(node->getParent()->getLeft() == node)
+	{
+	  isLeft = true;
+	}
+      else
+	{
+	  isLeft = false;
+	}
+      
       if(isLeft)
 	{
 	  sib = node->getParent()->getRight();
 	  if(sib->getColor() == 'R')
 	    {
-	      sib->setColor('R');
+	      sib->setColor('B');
 	      sib->getParent()->setColor('R');
-	      leftRotate(node->parent());
+	      leftRotate(node->getParent());
 	      sib = node->getParent()->getRight();
 	    }
 	  //case 2
-        if(sib->getLeft()->getColor() == 'B' && sib->getRight()->getColor() == 'B')
+	  if((sib->getLeft() == nullptr || sib->getLeft()->getColor() == 'B') &&
+	     (sib->getRight() == nullptr || sib->getRight()->getColor() == 'B'))
 	  {
 	    sib->setColor('R');
 	    node = node->getParent();
@@ -469,13 +488,14 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 	  sib = node->getParent()->getLeft();
           if(sib->getColor() == 'R')
             {
-              sib->setColor('R');
+              sib->setColor('B');
               sib->getParent()->setColor('R');
-              rightRotate(node->parent());
+              rightRotate(node->getParent());
               sib = node->getParent()->getLeft();
             }
           //case 2
-        if(sib->getLeft()->getColor() == 'B' && sib->getRight()->getColor() == 'B')
+        if((sib->getLeft() == nullptr || sib->getLeft()->getColor() == 'B') &&
+             (sib->getRight() == nullptr || sib->getRight()->getColor() == 'B'))
           {
             sib->setColor('R');
             node = node->getParent();
