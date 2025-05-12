@@ -377,11 +377,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 
         char origionalColor = node->getColor();
 	BinaryNode* fixNode;
-	if(node->getLeft() == nullptr)
-	  {
-	    fixNode = node->getRight();
-	  }
-	//started changing delete
+	
 	
       delete node;
       
@@ -401,8 +397,8 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	    }
 	  fixNode->setColor(origionalColor);
 	  cout << "IsLeft: " << isLeft << endl;
-	  cout << "FixNode: " << fixNode->getData() << endl;
-	  removeFix(nodeParent, fixNode, isLeft);
+	  cout << "FixNode: " << fixNode->getParent()->getData() << endl;
+	  removeFix(nodeParent, fixNode->getParent(), isLeft);
 	}
       
       return toReturn;
