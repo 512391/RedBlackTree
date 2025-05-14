@@ -289,7 +289,7 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
       
       cout << "removing something: " << i << endl;
 
-      if(nodeParent->getLeft() == node)
+      if(nodeParent != nullptr && nodeParent->getLeft() == node)
 	{
 	  isLeft = true;
 	}
@@ -301,10 +301,37 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	  //checks if it has both childen
 	  if(node->getLeft() != nullptr && node->getRight() != nullptr)
 	    {
+	      success = getSuccesor(node);
 	      //set right as root
-	  BinaryNode* left = Tree::root->getLeft();
-	  Tree::root = Tree::root->getRight();
-	  Tree::root->setLeft(left);
+	      BinaryNode* parent  = getParent(Tree::root, success->getData());
+	   cout << success->getData() << "Parent: " << parent->getData() << endl;
+          //set success parets children
+          if(parent != node)
+            {
+              parent->setLeft(success->getRight());
+            }
+          success->setLeft(nullptr);
+          success->setRight(nullptr);
+
+	  Tree::root = success;
+	  if(node->getLeft() != success)
+            {
+              success->setLeft(node->getLeft());
+            }
+          else
+            {
+              success->setLeft(nullptr);
+            }
+          if(node->getRight() != success)
+            {
+              success->setRight(node->getRight());
+            }
+          else
+            {
+              success->setRight(nullptr);
+            }
+          success->setColor(node->getColor());
+
 	    }//just set root if only one child
 	  else if(node->getLeft() != nullptr)
 	    {
@@ -520,8 +547,6 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 	}
       node->setColor('B');
     }
-  cout << "End" << endl;
-  print();
 }
 
 //gets the height
