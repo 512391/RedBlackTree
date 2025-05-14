@@ -270,6 +270,23 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
   BinaryNode* success = nullptr;
   if(node->getData() == i)
     {
+      char origionalColor = node->getColor();
+        BinaryNode* fixNode = nullptr;
+
+	if(origionalColor == 'B')
+        {
+          cout << "fixing" << endl;
+          
+          if(node->getLeft() == nullptr)
+	    {
+	      fixNode = node->getRight();
+	    }
+	  else if(node->getRight() == nullptr)
+	    {
+	      fixNode = node->getLeft();
+	    }
+	}
+      
       cout << "removing something: " << i << endl;
 
       if(nodeParent->getLeft() == node)
@@ -313,6 +330,8 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
             {
               parent->setLeft(success->getRight());
             }
+	  success->setLeft(nullptr);
+	  success->setRight(nullptr);
 	  //sets the success into new spot
 	  if(nodeParent->getRight() == node)
 	    {
@@ -339,6 +358,9 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 	    {
 	      success->setRight(nullptr);
 	    }
+	  success->setColor(node->getColor());
+	  cout << "end of deletion" << endl;
+	  print();
 	}//checks if only has right child
       else if(node->getRight() != nullptr)
 	{
@@ -374,31 +396,21 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
               nodeParent->setLeft(nullptr);
             }
 	}
-
-        char origionalColor = node->getColor();
-	BinaryNode* fixNode;
-	
 	
       delete node;
-      
-      if(origionalColor == 'B')
+
+      if(fixNode==nullptr)
 	{
-	  cout << "fixing" << endl;
-	  if(success == nullptr && root != nullptr)
+	  if(success != nullptr)
 	    {
-	      if(isLeft)
-		{
-		  fixNode = nodeParent->getLeft();
-		}
-	      else
-		{
-		  fixNode = nodeParent->getRight();
-		}
+	      fixNode = success->getRight();
 	    }
-	  fixNode->setColor(origionalColor);
-	  cout << "IsLeft: " << isLeft << endl;
-	  cout << "FixNode: " << fixNode->getParent()->getData() << endl;
-	  removeFix(nodeParent, fixNode->getParent(), isLeft);
+	}
+      
+      cout << "FixNode: " << fixNode << endl;
+      if(fixNode != nullptr && origionalColor == 'B')
+	{
+	  removeFix(nodeParent, fixNode, isLeft);
 	}
       
       return toReturn;
@@ -418,19 +430,10 @@ BinaryNode* Tree::remove(BinaryNode* nodeParent, BinaryNode* node, int i)
 //fixes any rule breaks on deletion big credit to the https://www.programiz.com/dsa/deletion-from-a-red-black-tree tutorial really helped me understand it
 void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 { 
-  if(node == root)
-    {
-      if(node->getLeft() == nullptr)
-	{
-	  leftRotate(node);
-	}
-      else
-	{
-	  rightRotate(node);
-	}
-    }
   while(node != root && (node == nullptr || node->getColor() == 'B'))
     {
+      cout << "Beginning" << endl;
+      print();
       cout << "Current node: " << node->getData() << endl;
       BinaryNode* sib = nullptr;
       //case 1
@@ -464,7 +467,7 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
         else
 	  {
 	    //case 3
-	    if(sib->getRight()->getColor() == 'B')
+	    if(sib->getRight() == nullptr || sib->getRight()->getColor() == 'B')
 	      {
 	        sib->getLeft()->setColor('B');
 	        sib->setColor('R');
@@ -473,7 +476,7 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 	      }
 	    //case 4
 	    sib->setColor(node->getParent()->getColor());
-	    node->getParent()->getParent()->setColor('B');
+	    node->getParent()->setColor('B');
 	    sib->getRight()->setColor('B');
 	    leftRotate(node->getParent());
 	    node = root;
@@ -499,7 +502,7 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
         else
           {
             //case 3
-            if(sib->getLeft()->getColor() == 'B')
+            if(sib->getLeft() == nullptr || sib->getLeft()->getColor() == 'B')
               {
                 sib->getRight()->setColor('B');
                 sib->setColor('R');
@@ -508,7 +511,7 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
               }
             //case 4
             sib->setColor(node->getParent()->getColor());
-            node->getParent()->getParent()->setColor('B');
+            node->getParent()->setColor('B');
             sib->getLeft()->setColor('B');
             rightRotate(node->getParent());
             node = root;
@@ -517,7 +520,8 @@ void Tree::removeFix(BinaryNode* nodeParent, BinaryNode* node, bool isLeft)
 	}
       node->setColor('B');
     }
-  
+  cout << "End" << endl;
+  print();
 }
 
 //gets the height
